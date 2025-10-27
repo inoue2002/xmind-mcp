@@ -8,43 +8,13 @@ TypeScript製のXMindマインドマップを作成・管理するためのMCP�
 - トピック（ノード）の追加
 - マインドマップ構造の取得
 - XMind形式でのファイル保存
+- 既存のXMindファイルの読み込み
 - マインドマップ一覧の表示
 
 ## インストール
 
 ```bash
-npm install -g @inoue2002/xmind-mcp
-```
-
-または、npxで直接使用することもできます（インストール不要）。
-
-## 使用方法
-
-### Claude DesktopでMCPサーバーとして使用
-
-`~/Library/Application Support/Claude/claude_desktop_config.json` に以下を追加：
-
-**npxを使用する場合（推奨）：**
-```json
-{
-  "mcpServers": {
-    "xmind": {
-      "command": "npx",
-      "args": ["-y", "@inoue2002/xmind-mcp"]
-    }
-  }
-}
-```
-
-**グローバルインストールした場合：**
-```json
-{
-  "mcpServers": {
-    "xmind": {
-      "command": "xmind-mcp"
-    }
-  }
-}
+claude mcp add xmind npx -- -y @inoue2002/xmind-mcp
 ```
 
 ## 利用可能なツール
@@ -93,6 +63,15 @@ npm install -g @inoue2002/xmind-mcp
 {
   "mindMapId": "mindmap_1",
   "filePath": "/path/to/output.xmind"
+}
+```
+
+### 6. load_mindmap
+既存のXMindファイルを読み込んで編集可能にします。
+
+```json
+{
+  "filePath": "/path/to/existing.xmind"
 }
 ```
 

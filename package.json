@@ -1,6 +1,6 @@
 {
   "name": "@inoue2002/xmind-mcp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "MCP server for creating and managing XMind mind maps",
   "type": "module",
   "main": "dist/index.js",
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
+    "fast-xml-parser": "^5.3.0",
     "jszip": "^3.10.1"
   },
   "devDependencies": {

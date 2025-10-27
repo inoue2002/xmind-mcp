@@ -10,6 +10,7 @@ import {
 import JSZip from "jszip";
 import { promises as fs } from "fs";
 import { dirname } from "path";
+import { XMLParser } from "fast-xml-parser";
 
 interface Topic {
   id: string;
@@ -108,6 +109,85 @@ async function saveToFile(mindMap: MindMap, filePath: string): Promise<void> {
   await fs.writeFile(filePath, content);
 }
 
+async function loadFromFile(filePath: string): Promise<MindMap> {
+  // Read the file
+  const data = await fs.readFile(filePath);
+
+  // Unzip the file
+  const zip = await JSZip.loadAsync(data);
+
+  // Get content.xml
+  const contentXml = await zip.file("content.xml")?.async("text");
+  if (!contentXml) {
+    throw new Error("content.xml not found in XMind file");
+  }
+
+  // Parse XML
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: "@_",
+  });
+  const result = parser.parse(contentXml);
+
+  // Extract mind map data
+  const xmapContent = result["xmap-content"];
+  const sheet = xmapContent.sheet;
+  const title = sheet.title || "Untitled";
+  const rootTopicXml = sheet.topic;
+
+  // Parse topics recursively
+  function parseTopic(topicXml: any): Topic {
+    const topic: Topic = {
+      id: topicXml["@_id"],
+      title: topicXml.title || "",
+      children: [],
+    };
+
+    // Parse children
+    if (topicXml.children && topicXml.children.topics) {
+      const topicsArray = Array.isArray(topicXml.children.topics)
+        ? topicXml.children.topics
+        : [topicXml.children.topics];
+
+      for (const childTopicXml of topicsArray) {
+        const childTopic = parseTopic(childTopicXml.topic);
+        childTopic.parentId = topic.id;
+        topic.children.push(childTopic);
+      }
+    }
+
+    return topic;
+  }
+
+  const rootTopic = parseTopic(rootTopicXml);
+
+  // Generate new mindmap ID
+  const mindMapId = generateMindMapId();
+
+  // Update topic ID counter to avoid conflicts
+  function updateTopicIdCounter(topic: Topic) {
+    const match = topic.id.match(/^topic_(\d+)$/);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (num >= topicIdCounter) {
+        topicIdCounter = num;
+      }
+    }
+
+    for (const child of topic.children) {
+      updateTopicIdCounter(child);
+    }
+  }
+
+  updateTopicIdCounter(rootTopic);
+
+  return {
+    id: mindMapId,
+    title,
+    rootTopic,
+  };
+}
+
 function findTopicById(topic: Topic, id: string): Topic | null {
   if (topic.id === id) {
     return topic;
@@ -202,6 +282,20 @@ const tools: Tool[] = [
         },
       },
       required: ["mindMapId", "filePath"],
+    },
+  },
+  {
+    name: "load_mindmap",
+    description: "Load an existing XMind file into memory for editing",
+    inputSchema: {
+      type: "object",
+      properties: {
+        filePath: {
+          type: "string",
+          description: "File path to the XMind file to load (should end with .xmind)",
+        },
+      },
+      required: ["filePath"],
     },
   },
 ];
@@ -352,6 +446,27 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             type: "text",
             text: JSON.stringify({
               message: `Mind map saved successfully to ${filePath}`,
+            }, null, 2),
+          },
+        ],
+      };
+    }
+
+    if (name === "load_mindmap") {
+      const { filePath } = args as { filePath: string };
+
+      const mindMap = await loadFromFile(filePath);
+      mindMaps.set(mindMap.id, mindMap);
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({
+              mindMapId: mindMap.id,
+              title: mindMap.title,
+              rootTopicId: mindMap.rootTopic.id,
+              message: `Mind map loaded successfully from ${filePath}`,
             }, null, 2),
           },
         ],
