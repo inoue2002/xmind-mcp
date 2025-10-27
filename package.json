@@ -1,0 +1,39 @@
+{
+  "name": "xmind-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for creating and managing XMind mind maps",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "xmind-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "xmind",
+    "mindmap"
+  ],
+  "author": "Yousuke Inoue",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inoue2002/xmind-mcp.git"
+  },
+  "homepage": "https://github.com/inoue2002/xmind-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/inoue2002/xmind-mcp/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.2"
+  }
+}
