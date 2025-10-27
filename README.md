@@ -13,9 +13,10 @@ TypeScript製のXMindマインドマップを作成・管理するためのMCP�
 ## インストール
 
 ```bash
-npm install
-npm run build
+npm install -g @inoue2002/xmind-mcp
 ```
+
+または、npxで直接使用することもできます（インストール不要）。
 
 ## 使用方法
 
@@ -23,12 +24,24 @@ npm run build
 
 `~/Library/Application Support/Claude/claude_desktop_config.json` に以下を追加：
 
+**npxを使用する場合（推奨）：**
 ```json
 {
   "mcpServers": {
     "xmind": {
-      "command": "node",
-      "args": ["/path/to/xmind-mcp/dist/index.js"]
+      "command": "npx",
+      "args": ["-y", "@inoue2002/xmind-mcp"]
+    }
+  }
+}
+```
+
+**グローバルインストールした場合：**
+```json
+{
+  "mcpServers": {
+    "xmind": {
+      "command": "xmind-mcp"
     }
   }
 }
