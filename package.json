@@ -1,6 +1,6 @@
 {
   "name": "@inoue2002/xmind-mcp",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "MCP server for creating and managing XMind mind maps",
   "type": "module",
   "main": "dist/index.js",
